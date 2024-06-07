@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container">
+    <br><br>
+    <div class="card mb-3" style="max-width: 1000px;">
+        <div class="row g-0">
+          <div class="col-md-4">
+            <img src="{{product.image.url}}" class="img-fluid rounded-start" alt="...">
+          </div>
+          <div class="col-md-8">
+            <div class="card-body">
+              <h5 class="card-title">{{product.name}}</h5>
+              <p class="card-text">{{product.description}}</p>
+
+              {% if product.is_sale %}
+                    <span class="text-muted text-decoration-line-through">{{product.price}}</span>
+                    {{product.sale_price}}
+              {% else %}
+              {{product.price}}
+            </br>
+              
+              {% endif %}
+              <br><br>
+              <div class="row justify-content-center">
+                <div class='col-md-2'>Quantity:</div>
+                <div class='col-md-2'>
+                  <select class="form-select form-select-sm" id='qty-cart'>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                  </select>
+                </div>
+              </div>
+              <br>
+              <a href="{% url 'home'%}" class="btn btn-secondary">Home</a>
+              <button type='button' value="{{ product.id}}"
+              class="btn btn-primary" id="add-cart">Add to Cart</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+      <br><br>
+      <br><br>
+      <script>
+        // Declare and initialize controls variable
+        var controls = {
+          log: function(message) {
+            console.log(message);
+          }
+        };
+      
+        // check if button pressed
+        $(document).on('click', '#add-cart', function(e) {
+          e.preventDefault();
+          $.ajax({
+            type: 'POST',
+            url: '{% url 'cart_add' %}',
+            data: {
+              product_id: $('#add-cart').val(),
+              product_qty:$('#qty-cart option:selected').text(),
+              csrfmiddlewaretoken: '{{ csrf_token }}',
+              action: 'post'
+            },
+            success: function(json) {
+             //{% comment %} controls.log(json); // Assuming controls is an object with a log method {% endcomment %}
+             document.getElementById('cart_quantity').textContent=json.qty
+             location.reload();
+            },
+            error: function(xhr, errmsg, err) {
+              // Handle error
+            }
+          });
+        });
+      </script>
+      
+      
+
+{% endblock content %}
